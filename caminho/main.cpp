@@ -28,11 +28,11 @@ int main()
 
     std::cout << "BFS: " << std::endl;
 
-    labirinto->bfs(1, 1, 7, 3);
+    labirinto->bfs(1, 1, 15, 13);
 
     std::cout << "DFS: " << std::endl;
 
-    labirinto->dfs(1, 1, 3, 5);
+    labirinto->dfs(1, 1, 15, 13);
 
     std::cout << "Greedy: " << std::endl;
 

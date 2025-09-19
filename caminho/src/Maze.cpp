@@ -120,7 +120,7 @@ void Maze::dfs(int xi, int yi, int xf, int yf)
                     break;
             }
 
-            if ((visited->at(v.y + y).at(v.x + x) != '*') && (visited->at(v.y + y).at(v.x + x) != '|') && (heuristic(v.x + x, v.y + y, xf, yf) < dist)) {
+            if ((visited->at(v.y + y).at(v.x + x) != '*') && (visited->at(v.y + y).at(v.x + x) != '|')) {
                 stack->push({v.x + x, v.y + y});
             }
         }
