@@ -1,6 +1,6 @@
 #include "Helpers.hpp"
 
-int heuristic(int x, int y, int xf, int yf)
+int heuristic(std::shared_ptr<Coordinate> currentPos, std::shared_ptr<Coordinate> endPos)
 {
-    return abs((x - xf) + (y - yf));
+    return abs((currentPos->getX() - endPos->getX()) + (currentPos->getY() - endPos->getY()));
 };

@@ -1,4 +1,5 @@
 #include "src/Maze.hpp"
+#include "src/Coordinate.hpp"
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -25,24 +26,24 @@ int main()
     labirintoStr->push_back({'|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|'});
 
     auto labirinto = std::make_shared<Maze>(labirintoStr);
+    auto startPos = std::make_shared<Coordinate>(1, 1);
+    auto endPos = std::make_shared<Coordinate>(15, 13);
 
     std::cout << "BFS: " << std::endl;
 
-    labirinto->bfs(1, 1, 15, 13);
+    labirinto->bfs(startPos, endPos);
 
     std::cout << "DFS: " << std::endl;
 
-    labirinto->dfs(1, 1, 15, 13);
+    labirinto->dfs(startPos, endPos);
 
     std::cout << "Greedy: " << std::endl;
 
-    labirinto->greedy(1, 1, 15, 13);
+    labirinto->greedy(startPos, endPos);
 
     std::cout << "A*: " << std::endl;
 
-    labirinto->aStar(1, 1, 15, 13);
-
-    // auto labirinto = std::make_unique<Maze>(labirintoStr);
+    labirinto->aStar(startPos, endPos);
 
     return 0;
 }

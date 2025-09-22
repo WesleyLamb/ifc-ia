@@ -7,10 +7,11 @@
 class Vec
 {
     public:
-        Vec(int ax, int ay);
+        Vec(int ax, int ay, std::shared_ptr<Vec> aParent);
 
         int x;
         int y;
+        std::shared_ptr<Vec> parent = 0;
 };
 
 #endif

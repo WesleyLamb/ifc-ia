@@ -2,7 +2,9 @@
 #define Helpers_hpp
 
 #include <cmath>
+#include <memory>
+#include "Coordinate.hpp"
 
-int heuristic(int x, int y, int xf, int yf);
+int heuristic(std::shared_ptr<Coordinate> currentPos, std::shared_ptr<Coordinate> endPos);
 
 #endif

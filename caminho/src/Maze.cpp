@@ -5,27 +5,57 @@ Maze::Maze(std::shared_ptr<std::vector<std::vector<char>>> aMaze)
     this->maze = aMaze;
 }
 
-void Maze::bfs(int xi, int yi, int xf, int yf)
+std::string Maze::showPath(std::shared_ptr<Coordinate> pos)
+{
+    std::shared_ptr<std::list<std::shared_ptr<Coordinate>>> path = std::make_shared<std::list<std::shared_ptr<Coordinate>>>();
+    while (pos != nullptr) {
+        path->push_back(pos);
+        pos = pos->getParent();
+    }
+
+    std::unique_ptr<std::stack<char>> strPath = std::make_unique<std::stack<char>>();
+
+    for (auto it = path->begin(); it != path->end(); ++it) {
+        strPath->push(this->maze->at(it->get()->getY()).at(it->get()->getX()));
+    }
+
+    std::string result = "";
+    while (strPath->size() > 0) {
+        auto str = strPath->top();
+        strPath->pop();
+        if ((result.find(str) == std::string::npos) && (str != ' ')) {
+            if (result.length() > 0) {
+                result += " -> ";
+            }
+            result += str;
+        }
+    }
+
+    return result;
+}
+
+void Maze::bfs(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinate> endPos)
 {
     bool found = false;
-    auto visited = std::make_shared<std::vector<std::vector<char>>>();
-    auto queue = std::make_unique<std::queue<Vec>>();
-    auto dest = std::make_unique<Vec>(xf, yf);
+    auto visited = std::make_unique<std::vector<std::vector<char>>>();
+    auto queue = std::make_unique<std::queue<std::shared_ptr<Coordinate>>>();
+    std::shared_ptr<Coordinate> currentPos = nullptr;
+
     int x, y;
 
     for (int i = 0; i < this->maze->size(); i++) {
         visited->push_back(this->maze->at(i));
     }
 
-    queue->push({xi, yi});
-    visited->at(yi).at(xi) = '*';
+    queue->push(startPos);
+
 
     while (queue->size() > 0) {
-        auto v = queue->front();
+        currentPos = queue->front();
         queue->pop();
-        visited->at(v.y).at(v.x) = '*';
+        visited->at(currentPos->getY()).at(currentPos->getX()) = '-';
 
-        if ((v.x == dest->x) && (v.y == dest->y)) {
+        if (currentPos->same(endPos)) {
             found = true;
             break;
         }
@@ -53,112 +83,52 @@ void Maze::bfs(int xi, int yi, int xf, int yf)
                     break;
             }
 
-            if ((visited->at(v.y + y).at(v.x + x) != '*') && (visited->at(v.y + y).at(v.x + x) != '|')) {
-                queue->push({v.x + x, v.y + y});
+            if ((visited->at(currentPos->getY() + y).at(currentPos->getX() + x) != '-') && (visited->at(currentPos->getY() + y).at(currentPos->getX() + x) != '|')) {
+                queue->push(std::make_shared<Coordinate>(currentPos->getX() + x, currentPos->getY() + y, currentPos));
             }
         }
     }
 
     if (found) {
+        auto helper = currentPos;
+        while (helper != nullptr) {
+            visited->at(helper->getY()).at(helper->getX()) = '*';
+            helper = helper->getParent();
+        }
         for (int i = 0; i < visited->size(); i++) {
             for (int j = 0; j < visited->at(i).size(); j++) {
                 std::cout << visited->at(i).at(j);
             }
             std::cout << '\n';
         }
+
+        std::cout << "Custo: " << std::to_string(currentPos->getCost()) << ", caminho: " << this->showPath(currentPos) << std::endl;
     } else {
-        std::cout << "Não encontrado caminho entre xi: " << xi << " yi: " << yi << " e xf: " << xf << " yf: " << yf << std::endl;
+        std::cout << "Não encontrado caminho entre " << startPos->toString() << " e " << endPos->toString() << std::endl;
     }
 }
 
-void Maze::dfs(int xi, int yi, int xf, int yf)
+void Maze::dfs(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinate> endPos)
 {
     bool found = false;
-    auto visited = std::make_shared<std::vector<std::vector<char>>>();
-    auto stack = std::make_unique<std::stack<Vec>>();
-    auto dest = std::make_unique<Vec>(xf, yf);
-    int x, y,dist;
+    auto visited = std::make_unique<std::vector<std::vector<char>>>();
+    auto stack = std::make_unique<std::stack<std::shared_ptr<Coordinate>>>();
+    std::shared_ptr<Coordinate> currentPos = nullptr;
 
-    for (int i = 0; i < this->maze->size(); i++) {
-        visited->push_back(this->maze->at(i));
-    }
-
-    stack->push({xi, yi});
-    visited->at(yi).at(xi) = '*';
-
-    while (stack->size() > 0) {
-        auto v = stack->top();
-        stack->pop();
-        visited->at(v.y).at(v.x) = '*';
-        dist = this->heuristic(v.x, v.y, xf, yf);
-
-        if ((v.x == dest->x) && (v.y == dest->y)) {
-            found = true;
-            break;
-        }
-
-        for (int i = 0; i < 4; i++) {
-            switch (i) {
-                case 0:
-                    x = 0;
-                    y = -1;
-                    break;
-
-                case 1:
-                    x = -1;
-                    y = 0;
-                    break;
-
-                case 2:
-                    x = 1;
-                    y = 0;
-                    break;
-
-                default:
-                    x = 0;
-                    y = 1;
-                    break;
-            }
-
-            if ((visited->at(v.y + y).at(v.x + x) != '*') && (visited->at(v.y + y).at(v.x + x) != '|')) {
-                stack->push({v.x + x, v.y + y});
-            }
-        }
-    }
-
-    if (found) {
-        for (int i = 0; i < visited->size(); i++) {
-            for (int j = 0; j < visited->at(i).size(); j++) {
-                std::cout << visited->at(i).at(j);
-            }
-            std::cout << '\n';
-        }
-    } else {
-        std::cout << "Não encontrado caminho entre xi: " << xi << " yi: " << yi << " e xf: " << xf << " yf: " << yf << std::endl;
-    }
-}
-
-void Maze::greedy(int xi, int yi, int xf, int yf)
-{
-    bool found = false;
-    auto visited = std::make_shared<std::vector<std::vector<char>>>();
-    auto stack = std::make_unique<std::stack<Vec>>();
-    auto dest = std::make_unique<Vec>(xf, yf);
     int x, y;
 
     for (int i = 0; i < this->maze->size(); i++) {
         visited->push_back(this->maze->at(i));
     }
 
-    stack->push({xi, yi});
-    visited->at(yi).at(xi) = '*';
+    stack->push(startPos);
 
     while (stack->size() > 0) {
-        auto v = stack->top();
+        currentPos = stack->top();
         stack->pop();
-        visited->at(v.y).at(v.x) = '*';
+        visited->at(currentPos->getY()).at(currentPos->getX()) = '-';
 
-        if ((v.x == dest->x) && (v.y == dest->y)) {
+        if (currentPos->same(endPos)) {
             found = true;
             break;
         }
@@ -186,45 +156,52 @@ void Maze::greedy(int xi, int yi, int xf, int yf)
                     break;
             }
 
-            if ((visited->at(v.y + y).at(v.x + x) != '*') && (visited->at(v.y + y).at(v.x + x) != '|')) {
-                stack->push({v.x + x, v.y + y});
+            if ((visited->at(currentPos->getY() + y).at(currentPos->getX() + x) != '-') && (visited->at(currentPos->getY() + y).at(currentPos->getX() + x) != '|')) {
+                stack->push(std::make_shared<Coordinate>(currentPos->getX() + x, currentPos->getY() + y, currentPos));
             }
         }
     }
 
     if (found) {
+        auto helper = currentPos;
+        while (helper != nullptr) {
+            visited->at(helper->getY()).at(helper->getX()) = '*';
+            helper = helper->getParent();
+        }
         for (int i = 0; i < visited->size(); i++) {
             for (int j = 0; j < visited->at(i).size(); j++) {
                 std::cout << visited->at(i).at(j);
             }
             std::cout << '\n';
         }
+
+        std::cout << "Custo: " << std::to_string(currentPos->getCost()) << ", caminho: " << this->showPath(currentPos) << std::endl;
     } else {
-        std::cout << "Não encontrado caminho entre xi: " << xi << " yi: " << yi << " e xf: " << xf << " yf: " << yf << std::endl;
+        std::cout << "Não encontrado caminho entre " << startPos->toString() << " e " << endPos->toString() << std::endl;
     }
 }
 
-void Maze::aStar(int xi, int yi, int xf, int yf)
+void Maze::greedy(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinate> endPos)
 {
-bool found = false;
+    bool found = false;
     auto visited = std::make_shared<std::vector<std::vector<char>>>();
-    auto list = std::make_unique<std::list<Vec>>();
-    auto dest = std::make_unique<Vec>(xf, yf);
-    int x, y;
+    auto list = std::make_unique<std::list<std::shared_ptr<Coordinate>>>();
+    int x, y, bestHeuristic;
+    std::shared_ptr<Coordinate> currentPos = nullptr;
 
     for (int i = 0; i < this->maze->size(); i++) {
         visited->push_back(this->maze->at(i));
     }
 
-    list->push_back({xi, yi});
-    visited->at(yi).at(xi) = '*';
+    list->push_front(startPos);
 
     while (list->size() > 0) {
-        auto v = list->front();
+        currentPos = list->front();
         list->pop_front();
-        visited->at(v.y).at(v.x) = '*';
+        visited->at(currentPos->getY()).at(currentPos->getX()) = '-';
+        bestHeuristic = heuristic(currentPos, endPos);
 
-        if ((v.x == dest->x) && (v.y == dest->y)) {
+        if ((currentPos->same(endPos))) {
             found = true;
             break;
         }
@@ -252,31 +229,114 @@ bool found = false;
                     break;
             }
 
-            if ((visited->at(v.y + y).at(v.x + x) != '*') && (visited->at(v.y + y).at(v.x + x) != '|')) {
+            if ((visited->at(currentPos->getY() + y).at(currentPos->getX() + x) != '-') && (visited->at(currentPos->getY() + y).at(currentPos->getX() + x) != '|') ) {
+                auto newPos = std::make_shared<Coordinate>(currentPos->getX() + x, currentPos->getY() + y, currentPos);
                 auto it = list->begin();
                 for (it = list->begin(); it != list->end(); ++it) {
-                    if (this->heuristic(it->x, it->y, xf, yf) > this->heuristic(v.x + x, v.y + y, xf, yf)) {
+                    if (heuristic(*it, endPos) > heuristic(newPos, endPos)) {
                         break;
                     }
                 }
-                list->insert(it, {v.x + x, v.y + y});
+                list->insert(it, newPos);
             }
         }
     }
 
     if (found) {
+        auto helper = currentPos;
+        while (helper != nullptr) {
+            visited->at(helper->getY()).at(helper->getX()) = '*';
+            helper = helper->getParent();
+        }
         for (int i = 0; i < visited->size(); i++) {
             for (int j = 0; j < visited->at(i).size(); j++) {
                 std::cout << visited->at(i).at(j);
             }
             std::cout << '\n';
+
         }
+        std::cout << "Custo: " << std::to_string(currentPos->getCost()) << ", caminho: " << this->showPath(currentPos) << std::endl;
     } else {
-        std::cout << "Não encontrado caminho entre xi: " << xi << " yi: " << yi << " e xf: " << xf << " yf: " << yf << std::endl;
+        std::cout << "Não encontrado caminho entre " << startPos->toString() << " e " << endPos->toString() << std::endl;
     }
 }
 
-int Maze::heuristic(int x, int y, int xf, int yf)
+void Maze::aStar(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinate> endPos)
 {
-    return abs((x - xf) + (y - yf));
+    bool found = false;
+    auto visited = std::make_shared<std::vector<std::vector<char>>>();
+    auto list = std::make_unique<std::list<std::shared_ptr<Coordinate>>>();
+    int x, y, bestHeuristic;
+    std::shared_ptr<Coordinate> currentPos = nullptr;
+
+    for (int i = 0; i < this->maze->size(); i++) {
+        visited->push_back(this->maze->at(i));
+    }
+
+    list->push_front(startPos);
+
+    while (list->size() > 0) {
+        currentPos = list->front();
+        list->pop_front();
+        visited->at(currentPos->getY()).at(currentPos->getX()) = '-';
+        bestHeuristic = heuristic(currentPos, endPos);
+
+        if ((currentPos->same(endPos))) {
+            found = true;
+            break;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            switch (i) {
+                case 0:
+                    x = 0;
+                    y = -1;
+                    break;
+
+                case 1:
+                    x = -1;
+                    y = 0;
+                    break;
+
+                case 2:
+                    x = 1;
+                    y = 0;
+                    break;
+
+                default:
+                    x = 0;
+                    y = 1;
+                    break;
+            }
+
+            if ((visited->at(currentPos->getY() + y).at(currentPos->getX() + x) != '-') && (visited->at(currentPos->getY() + y).at(currentPos->getX() + x) != '|') ) {
+                auto newPos = std::make_shared<Coordinate>(currentPos->getX() + x, currentPos->getY() + y, currentPos);
+                auto it = list->begin();
+                for (it = list->begin(); it != list->end(); ++it) {
+                    if ((heuristic(*it, endPos) + (*it)->getCost()) > (heuristic(newPos, endPos) + newPos->getCost())) {
+                        break;
+                    }
+                }
+                list->insert(it, newPos);
+            }
+        }
+    }
+
+    if (found) {
+        auto helper = currentPos;
+        while (helper != nullptr) {
+            visited->at(helper->getY()).at(helper->getX()) = '*';
+            helper = helper->getParent();
+        }
+        for (int i = 0; i < visited->size(); i++) {
+            for (int j = 0; j < visited->at(i).size(); j++) {
+                std::cout << visited->at(i).at(j);
+            }
+            std::cout << '\n';
+
+        }
+        std::cout << "Custo: " << std::to_string(currentPos->getCost()) << ", caminho: " << this->showPath(currentPos) << std::endl;
+    } else {
+        std::cout << "Não encontrado caminho entre " << startPos->toString() << " e " << endPos->toString() << std::endl;
+    }
 }
