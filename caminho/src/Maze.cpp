@@ -41,7 +41,7 @@ void Maze::bfs(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinate>
     auto queue = std::make_unique<std::queue<std::shared_ptr<Coordinate>>>();
     std::shared_ptr<Coordinate> currentPos = nullptr;
 
-    int x, y;
+    int x, y, accesses = 0;
 
     for (int i = 0; i < this->maze->size(); i++) {
         visited->push_back(this->maze->at(i));
@@ -85,6 +85,7 @@ void Maze::bfs(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinate>
 
             if ((visited->at(currentPos->getY() + y).at(currentPos->getX() + x) != '-') && (visited->at(currentPos->getY() + y).at(currentPos->getX() + x) != '|')) {
                 queue->push(std::make_shared<Coordinate>(currentPos->getX() + x, currentPos->getY() + y, currentPos));
+                accesses++;
             }
         }
     }
@@ -102,7 +103,7 @@ void Maze::bfs(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinate>
             std::cout << '\n';
         }
 
-        std::cout << "Custo: " << std::to_string(currentPos->getCost()) << ", caminho: " << this->showPath(currentPos) << std::endl;
+        std::cout << "Custo: " << std::to_string(currentPos->getCost()) << " acessos: " <<  std::to_string(accesses) << ", caminho: " << this->showPath(currentPos) << std::endl;
     } else {
         std::cout << "Não encontrado caminho entre " << startPos->toString() << " e " << endPos->toString() << std::endl;
     }
@@ -115,7 +116,7 @@ void Maze::dfs(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinate>
     auto stack = std::make_unique<std::stack<std::shared_ptr<Coordinate>>>();
     std::shared_ptr<Coordinate> currentPos = nullptr;
 
-    int x, y;
+    int x, y, accesses = 0;
 
     for (int i = 0; i < this->maze->size(); i++) {
         visited->push_back(this->maze->at(i));
@@ -158,6 +159,7 @@ void Maze::dfs(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinate>
 
             if ((visited->at(currentPos->getY() + y).at(currentPos->getX() + x) != '-') && (visited->at(currentPos->getY() + y).at(currentPos->getX() + x) != '|')) {
                 stack->push(std::make_shared<Coordinate>(currentPos->getX() + x, currentPos->getY() + y, currentPos));
+                accesses++;
             }
         }
     }
@@ -175,7 +177,7 @@ void Maze::dfs(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinate>
             std::cout << '\n';
         }
 
-        std::cout << "Custo: " << std::to_string(currentPos->getCost()) << ", caminho: " << this->showPath(currentPos) << std::endl;
+        std::cout << "Custo: " << std::to_string(currentPos->getCost()) << " acessos: " <<  std::to_string(accesses) << ", caminho: " << this->showPath(currentPos) << std::endl;
     } else {
         std::cout << "Não encontrado caminho entre " << startPos->toString() << " e " << endPos->toString() << std::endl;
     }
@@ -186,7 +188,7 @@ void Maze::greedy(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordina
     bool found = false;
     auto visited = std::make_shared<std::vector<std::vector<char>>>();
     auto list = std::make_unique<std::list<std::shared_ptr<Coordinate>>>();
-    int x, y, bestHeuristic;
+    int x, y, bestHeuristic, accesses = 0;
     std::shared_ptr<Coordinate> currentPos = nullptr;
 
     for (int i = 0; i < this->maze->size(); i++) {
@@ -238,6 +240,7 @@ void Maze::greedy(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordina
                     }
                 }
                 list->insert(it, newPos);
+                accesses++;
             }
         }
     }
@@ -255,7 +258,7 @@ void Maze::greedy(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordina
             std::cout << '\n';
 
         }
-        std::cout << "Custo: " << std::to_string(currentPos->getCost()) << ", caminho: " << this->showPath(currentPos) << std::endl;
+        std::cout << "Custo: " << std::to_string(currentPos->getCost()) << " acessos: " <<  std::to_string(accesses) << ", caminho: " << this->showPath(currentPos) << std::endl;
     } else {
         std::cout << "Não encontrado caminho entre " << startPos->toString() << " e " << endPos->toString() << std::endl;
     }
@@ -266,7 +269,7 @@ void Maze::aStar(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinat
     bool found = false;
     auto visited = std::make_shared<std::vector<std::vector<char>>>();
     auto list = std::make_unique<std::list<std::shared_ptr<Coordinate>>>();
-    int x, y, bestHeuristic;
+    int x, y, bestHeuristic, accesses = 0;
     std::shared_ptr<Coordinate> currentPos = nullptr;
 
     for (int i = 0; i < this->maze->size(); i++) {
@@ -318,6 +321,7 @@ void Maze::aStar(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinat
                     }
                 }
                 list->insert(it, newPos);
+                accesses++;
             }
         }
     }
@@ -335,7 +339,7 @@ void Maze::aStar(std::shared_ptr<Coordinate> startPos, std::shared_ptr<Coordinat
             std::cout << '\n';
 
         }
-        std::cout << "Custo: " << std::to_string(currentPos->getCost()) << ", caminho: " << this->showPath(currentPos) << std::endl;
+        std::cout << "Custo: " << std::to_string(currentPos->getCost()) << " acessos: " <<  std::to_string(accesses) << ", caminho: " << this->showPath(currentPos) << std::endl;
     } else {
         std::cout << "Não encontrado caminho entre " << startPos->toString() << " e " << endPos->toString() << std::endl;
     }
