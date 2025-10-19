@@ -2,19 +2,15 @@
 
 Sample::Sample(int ax1, int ax2, int aResult)
 {
-    this->x1 = ax1;
-    this->x2 = ax2;
+    this->x.push_back(ax1);
+    this->x.push_back(ax2);
+
     this->result = aResult;
 }
 
-int Sample::getx1()
+int Sample::getx(int i)
 {
-    return this->x1;
-}
-
-int Sample::getx2()
-{
-    return this->x2;
+    return this->x.at(i);
 }
 
 int Sample::getResult()

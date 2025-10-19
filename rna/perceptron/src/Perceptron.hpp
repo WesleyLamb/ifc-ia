@@ -13,17 +13,17 @@
 class Perceptron
 {
     private:
-        int learningRate;
+        double learningRate;
         std::vector<double> weights;
         double bias;
 
         void recalculate(std::shared_ptr<Sample> sample);
         double getRandom();
     public:
-        Perceptron(int aLearningRate);
+        Perceptron(double aLearningRate);
 
         void train(std::shared_ptr<std::list<std::shared_ptr<Sample>>> samples, int epochCount);
-        double think(int ax1, int ax2);
+        int think(int ax1, int ax2);
 };
 
 #endif

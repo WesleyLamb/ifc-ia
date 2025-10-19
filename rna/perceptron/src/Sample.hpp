@@ -6,14 +6,12 @@
 class Sample
 {
     private:
-        int x1;
-        int x2;
+        std::vector<int> x;
         int result;
     public:
         Sample(int ax1, int ax2, int aResult);
 
-        int getx1();
-        int getx2();
+        int getx(int i);
         int getResult();
 };
 
